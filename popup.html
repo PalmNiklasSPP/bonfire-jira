@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bonfire - Dark Souls Victory</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #f4e4c1;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 18px;
+      margin: 0 0 15px 0;
+      text-align: center;
+      color: #ffd700;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    .description {
+      font-size: 12px;
+      color: #d4c4a1;
+      margin-bottom: 20px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      background: linear-gradient(135deg, #ffd700 0%, #f4e4c1 100%);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #ffe44d 0%, #ffd700 100%);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .status {
+      margin-top: 15px;
+      padding: 10px;
+      background: rgba(255, 215, 0, 0.1);
+      border-radius: 4px;
+      text-align: center;
+      font-size: 12px;
+      color: #ffd700;
+      display: none;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .keyboard-hint {
+      margin-top: 15px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
+      font-size: 11px;
+      color: #999;
+      text-align: center;
+    }
+
+    .keyboard-hint kbd {
+      background: #444;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+      color: #ffd700;
+    }
+
+    .settings-section {
+      margin-bottom: 15px;
+    }
+
+    .settings-section h2,
+    .test-section h2 {
+      font-size: 14px;
+      margin: 0 0 12px 0;
+      color: #ffd700;
+      text-align: left;
+    }
+
+    .setting-item {
+      margin-bottom: 15px;
+    }
+
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      gap: 8px;
+    }
+
+    .toggle-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .setting-item label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 6px;
+      color: #d4c4a1;
+    }
+
+    .setting-item textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      font-size: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid #555;
+      border-radius: 4px;
+      color: #f4e4c1;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      resize: vertical;
+    }
+
+    .setting-item textarea:focus {
+      outline: none;
+      border-color: #ffd700;
+    }
+
+    .hint {
+      font-size: 10px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .save-btn {
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    }
+
+    .save-btn:hover {
+      background: linear-gradient(135deg, #5CBF60 0%, #4CAF50 100%);
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, #555 50%, transparent 100%);
+      margin: 20px 0;
+    }
+
+    .test-section {
+      margin-bottom: 15px;
+    }
+
+    .column-mappings {
+      margin-bottom: 10px;
+    }
+
+    .mapping-item {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      border: 1px solid #555;
+    }
+
+    .mapping-item input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 6px 8px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid #555;
+      border-radius: 3px;
+      color: #f4e4c1;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .mapping-item input:focus {
+      outline: none;
+      border-color: #ffd700;
+    }
+
+    .mapping-item input::placeholder {
+      color: #888;
+    }
+
+    .mapping-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .mapping-title {
+      font-size: 11px;
+      color: #ffd700;
+      font-weight: 600;
+    }
+
+    .remove-btn {
+      padding: 2px 8px;
+      font-size: 11px;
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .remove-btn:hover {
+      background: #ff6666;
+    }
+
+    .add-btn {
+      width: 100%;
+      padding: 8px;
+      font-size: 12px;
+      background: rgba(100, 100, 255, 0.3);
+      color: #f4e4c1;
+      border: 1px dashed #6666ff;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: none;
+      letter-spacing: normal;
+      font-weight: normal;
+    }
+
+    .add-btn:hover {
+      background: rgba(100, 100, 255, 0.5);
+      border-color: #8888ff;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔥 BONFIRE</h1>
+  <p class="description">
+    Bring Dark Souls epic victory to your Jira workflow
+  </p>
+
+  <div class="settings-section">
+    <h2>⚙️ Settings</h2>
+    
+    <div class="setting-item">
+      <label class="toggle-label">
+        <input type="checkbox" id="autoDetectToggle" checked>
+        <span>Auto-detect column changes</span>
+      </label>
+    </div>
+
+    <div class="setting-item">
+      <label>Column Triggers:</label>
+      <div class="hint">Configure which columns trigger the banner and what text to show</div>
+      <div id="columnMappings" class="column-mappings"></div>
+      <button id="addMapping" class="add-btn">➕ Add Column Trigger</button>
+    </div>
+
+    <button id="saveSettings" class="save-btn">💾 Save Settings</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="test-section">
+    <h2>🧪 Manual Tests</h2>
+    <div class="button-container">
+      <button id="testBtn1">Test: Victory Achieved</button>
+      <button id="testBtn2">Test: You Defeated</button>
+      <button id="testBtn3">Test: Epic Completed</button>
+    </div>
+  </div>
+
+  <div class="status" id="status">Banner displayed!</div>
+
+  <div class="keyboard-hint">
+    Quick test: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
