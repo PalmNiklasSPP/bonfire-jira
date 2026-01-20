@@ -4,6 +4,7 @@
 const DEFAULT_SETTINGS = {
   autoDetectEnabled: true,
   selectedSound: 'elden_ring_sound.mp3',
+  soundVolume: 0.7,
   columnMappings: [
     { columnName: 'Code Review', mainText: 'READY FOR REVIEW', subText: 'Code Awaits Inspection' },
     { columnName: 'Ready for Test', mainText: 'TESTING PHASE', subText: 'Quality Check Begins' },
@@ -21,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const autoDetectToggle = document.getElementById('autoDetectToggle');
   const soundSelect = document.getElementById('soundSelect');
   const previewSoundBtn = document.getElementById('previewSound');
+  const volumeSlider = document.getElementById('volumeSlider');
+  const volumeDisplay = document.getElementById('volumeDisplay');
   const columnMappingsContainer = document.getElementById('columnMappings');
   const status = document.getElementById('status');
 
@@ -99,6 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('[Bonfire Popup] Loaded settings from storage:', settings);
       autoDetectToggle.checked = settings.autoDetectEnabled;
       soundSelect.value = settings.selectedSound;
+      volumeSlider.value = settings.soundVolume;
+      volumeDisplay.textContent = Math.round(settings.soundVolume * 100) + '%';
       console.log('[Bonfire Popup] Sound selector set to:', soundSelect.value);
       renderMappings(settings.columnMappings);
     });
@@ -118,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const settings = {
       autoDetectEnabled: autoDetectToggle.checked,
       selectedSound: soundSelect.value,
+      soundVolume: parseFloat(volumeSlider.value),
       columnMappings: mappings
     };
 
@@ -191,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedSound = soundSelect.value;
     const soundUrl = chrome.runtime.getURL(`assets/${selectedSound}`);
     const audio = new Audio(soundUrl);
-    audio.volume = 0.5;
+    audio.volume = parseFloat(volumeSlider.value);
     audio.play().catch(err => {
       console.warn('[Bonfire] Could not play preview sound:', err);
       status.textContent = 'Could not play sound';
@@ -199,6 +205,12 @@ document.addEventListener('DOMContentLoaded', () => {
       showStatus();
     });
   }
+
+  // Update volume display when slider changes
+  volumeSlider.addEventListener('input', () => {
+    const volume = parseFloat(volumeSlider.value);
+    volumeDisplay.textContent = Math.round(volume * 100) + '%';
+  });
 
   saveSettingsBtn.addEventListener('click', saveSettings);
   addMappingBtn.addEventListener('click', addMapping);

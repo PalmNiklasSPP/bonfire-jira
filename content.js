@@ -11,6 +11,7 @@
   // Sound settings
   let soundEnabled = true; // Can be controlled via popup in future
   let selectedSound = 'elden_ring_sound.mp3'; // Default sound file
+  let soundVolume = 0.7; // Default volume (70%)
 
   // Auto-detection settings
   let autoDetectEnabled = true;
@@ -75,9 +76,9 @@
       const soundUrl = chrome.runtime.getURL(`assets/${selectedSound}`);
       console.log('[Bonfire] Sound URL:', soundUrl);
       const audio = new Audio(soundUrl);
-      audio.volume = 1.0; // 100% volume for testing
+      audio.volume = soundVolume;
       audio.play().then(() => {
-        console.log('[Bonfire] Sound started playing successfully');
+        console.log('[Bonfire] Sound started playing successfully at volume:', soundVolume);
       }).catch(err => {
         console.warn('[Bonfire] Could not play sound:', err);
       });
@@ -107,14 +108,15 @@
     ];
     
     chrome.storage.sync.get(
-      { autoDetectEnabled: true, selectedSound: 'elden_ring_sound.mp3', columnMappings: defaultMappings },
+      { autoDetectEnabled: true, selectedSound: 'elden_ring_sound.mp3', soundVolume: 0.7, columnMappings: defaultMappings },
       (settings) => {
         console.log('[Bonfire] Raw settings from storage:', settings);
         autoDetectEnabled = settings.autoDetectEnabled;
         selectedSound = settings.selectedSound || 'elden_ring_sound.mp3';
+        soundVolume = settings.soundVolume !== undefined ? settings.soundVolume : 0.7;
         columnMappings = settings.columnMappings || defaultMappings;
         console.log('[Bonfire] selectedSound variable is now:', selectedSound);
-        console.log('[Bonfire] Settings loaded:', { autoDetectEnabled, selectedSound, columnMappings });
+        console.log('[Bonfire] Settings loaded:', { autoDetectEnabled, selectedSound, soundVolume, columnMappings });
         
         // Restart observer with new settings
         if (autoDetectEnabled) {
