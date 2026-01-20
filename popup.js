@@ -3,6 +3,7 @@
 // Default settings
 const DEFAULT_SETTINGS = {
   autoDetectEnabled: true,
+  selectedSound: 'elden_ring_sound.mp3',
   columnMappings: [
     { columnName: 'Code Review', mainText: 'READY FOR REVIEW', subText: 'Code Awaits Inspection' },
     { columnName: 'Ready for Test', mainText: 'TESTING PHASE', subText: 'Quality Check Begins' },
@@ -18,8 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveSettingsBtn = document.getElementById('saveSettings');
   const addMappingBtn = document.getElementById('addMapping');
   const autoDetectToggle = document.getElementById('autoDetectToggle');
+  const soundSelect = document.getElementById('soundSelect');
+  const previewSoundBtn = document.getElementById('previewSound');
   const columnMappingsContainer = document.getElementById('columnMappings');
   const status = document.getElementById('status');
+
+  console.log('[Bonfire Popup] Elements found:', {
+    soundSelect: !!soundSelect,
+    saveSettingsBtn: !!saveSettingsBtn,
+    previewSoundBtn: !!previewSoundBtn
+  });
 
   // Create a mapping item element
   function createMappingElement(mapping, index) {
@@ -87,7 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load settings
   function loadSettings() {
     chrome.storage.sync.get(DEFAULT_SETTINGS, (settings) => {
+      console.log('[Bonfire Popup] Loaded settings from storage:', settings);
       autoDetectToggle.checked = settings.autoDetectEnabled;
+      soundSelect.value = settings.selectedSound;
+      console.log('[Bonfire Popup] Sound selector set to:', soundSelect.value);
       renderMappings(settings.columnMappings);
     });
   }
@@ -105,18 +117,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const settings = {
       autoDetectEnabled: autoDetectToggle.checked,
+      selectedSound: soundSelect.value,
       columnMappings: mappings
     };
 
-    chrome.storage.sync.set(settings, () => {
-      status.textContent = 'Settings saved!';
-      status.style.color = '#4CAF50';
-      showStatus();
+    console.log('[Bonfire Popup] Saving settings:', settings);
 
+    chrome.storage.sync.set(settings, () => {
+      console.log('[Bonfire Popup] Settings saved successfully');
+      
       // Notify content script to reload settings
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]) {
-          chrome.tabs.sendMessage(tabs[0].id, { action: 'reloadSettings' });
+          chrome.tabs.sendMessage(tabs[0].id, { action: 'reloadSettings' }, (response) => {
+            status.textContent = 'Settings saved!';
+            status.style.color = '#4CAF50';
+            showStatus();
+          });
+        } else {
+          status.textContent = 'Settings saved!';
+          status.style.color = '#4CAF50';
+          showStatus();
         }
       });
     });
@@ -165,6 +186,21 @@ document.addEventListener('DOMContentLoaded', () => {
     sendBannerMessage('EPIC COMPLETED', 'Task Accomplished');
   });
 
+  // Preview sound
+  function previewSound() {
+    const selectedSound = soundSelect.value;
+    const soundUrl = chrome.runtime.getURL(`assets/${selectedSound}`);
+    const audio = new Audio(soundUrl);
+    audio.volume = 0.5;
+    audio.play().catch(err => {
+      console.warn('[Bonfire] Could not play preview sound:', err);
+      status.textContent = 'Could not play sound';
+      status.style.color = '#ff4444';
+      showStatus();
+    });
+  }
+
   saveSettingsBtn.addEventListener('click', saveSettings);
   addMappingBtn.addEventListener('click', addMapping);
+  previewSoundBtn.addEventListener('click', previewSound);
 });

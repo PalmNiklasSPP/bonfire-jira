@@ -8,9 +8,9 @@
   const BANNER_DURATION = 4000; // 4 seconds display time
   const FADE_OUT_DURATION = 1000; // 1 second fade out
 
-  // Pre-load sound file for immediate playback
-  const soundUrl = chrome.runtime.getURL('assets/elden_ring_sound.mp3');
+  // Sound settings
   let soundEnabled = true; // Can be controlled via popup in future
+  let selectedSound = 'elden_ring_sound.mp3'; // Default sound file
 
   // Auto-detection settings
   let autoDetectEnabled = true;
@@ -71,10 +71,14 @@
 
     // Play sound effect if enabled
     if (soundEnabled) {
-        console.log('[Bonfire] Playing victory sound');
+      console.log('[Bonfire] Playing victory sound:', selectedSound);
+      const soundUrl = chrome.runtime.getURL(`assets/${selectedSound}`);
+      console.log('[Bonfire] Sound URL:', soundUrl);
       const audio = new Audio(soundUrl);
-      audio.volume = 0.5; // 50% volume
-      audio.play().catch(err => {
+      audio.volume = 1.0; // 100% volume for testing
+      audio.play().then(() => {
+        console.log('[Bonfire] Sound started playing successfully');
+      }).catch(err => {
         console.warn('[Bonfire] Could not play sound:', err);
       });
     }
@@ -103,11 +107,14 @@
     ];
     
     chrome.storage.sync.get(
-      { autoDetectEnabled: true, columnMappings: defaultMappings },
+      { autoDetectEnabled: true, selectedSound: 'elden_ring_sound.mp3', columnMappings: defaultMappings },
       (settings) => {
+        console.log('[Bonfire] Raw settings from storage:', settings);
         autoDetectEnabled = settings.autoDetectEnabled;
+        selectedSound = settings.selectedSound || 'elden_ring_sound.mp3';
         columnMappings = settings.columnMappings || defaultMappings;
-        console.log('[Bonfire] Settings loaded:', { autoDetectEnabled, columnMappings });
+        console.log('[Bonfire] selectedSound variable is now:', selectedSound);
+        console.log('[Bonfire] Settings loaded:', { autoDetectEnabled, selectedSound, columnMappings });
         
         // Restart observer with new settings
         if (autoDetectEnabled) {
